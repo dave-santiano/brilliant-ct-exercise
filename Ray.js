@@ -5,6 +5,9 @@ class Ray{
         this.isColliding = false;
         this.reflection = createVector();
         this.hitPoint = createVector();
+        this.rayLength = 0;
+        this.drawArrow = false;
+        this.hitId = " ";
     }
 
     lookAt(x, y){
@@ -14,7 +17,7 @@ class Ray{
     }
 
     draw(){
-        stroke(255);
+        stroke(0);
         push();
         translate(this.pos.x, this.pos.y);
         line(0, 0, this.dir.x * 10, this.dir.y * 10);
@@ -25,9 +28,20 @@ class Ray{
         let angleI;
         let angleR;
 
-        stroke(255);
+        // stroke(0);
+        //draw a line from the ray origin point to the hitpoint
         line(this.pos.x, this.pos.y, pt.x, pt.y);
-  
+
+        
+        this.rayLength = dist(this.pos.x, this.pos.y, pt.x, pt.y);
+        
+        push();
+        translate(pt.x, pt.y);
+        rotate(this.dir.heading());
+        let arrowSize = 7;
+        fill("black");
+        triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
+        pop();
         
         let v = createVector();
         v = this.dir.copy();
@@ -38,7 +52,7 @@ class Ray{
         p5.Vector.normalize(normals[0], n1)
         p5.Vector.normalize(normals[1], n2)
 
-
+        //This doesn't work perfectly quite yet
         //get angle from incidence/reflection to the closest surface normal.
         if(abs(v.angleBetween(n1)) < abs(v.angleBetween(n2))){
             angleI = abs(v.angleBetween(n1));
@@ -53,34 +67,31 @@ class Ray{
         if (abs(reflection.angleBetween(n1)) < abs(reflection.angleBetween(n2))){
             angleR = abs(reflection.angleBetween(n1));
             selectedNormal = n1;
-            // console.log("N1");
         }else{
             angleR = abs(reflection.angleBetween(n2));
             selectedNormal = n2;
-            // console.log("N2");
         }
         push();
-        stroke(255,0,0);
+        // stroke(255,0,0);
         translate(pt.x, pt.y);
 
         //display angles of incidence and reflection in degrees
 
         //INCIDENCE
-        textSize(12);
-        text("Ti: " + degrees(angleI), 10, 10);
-
-        //REFLECTION 
-        text("Tr: " + degrees(angleR), 10, 30);
-        // line(0, 0, reflection.x * 1000, reflection.y * 1000);
+        textSize(16);
+        text("Angle of Incidence: " + degrees(angleI).toPrecision(4), 10, 10);
         
-        //NORMAL
-        stroke(0,255,0);
-        line(0,0, selectedNormal.x * 40, selectedNormal.y * 40);
+        
+        //REFLECTION 
+        text("Angle of Reflection: " + degrees(angleI).toPrecision(4), 10, 30);
+        text("Ray length: " + this.rayLength.toPrecision(4), 10, 50);
         pop();
         
-        this.reflection = reflection;
         this.hitPoint = pt;
+        this.reflection = reflection;
 
+        //We create a new ray from the reflection, with the hitpoint
+        //as its origin point and the reflection vector as a direction.
         let bounceRay = new Ray(this.hitPoint, this.reflection);
 
         return bounceRay;
@@ -105,26 +116,32 @@ class Ray{
         const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
 
         if(t > 0 && t < 1 && u > 0){
-            this.isColliding = true;
-
+            // this.isColliding = true;
             if(wall.id === "Objective"){
-                console.log("objective hit!");
-
+                // return;
+                this.drawArrow = true;
             }else{
-                
+                this.drawArrow = false;
             }
-            console.log(wall.id);
+            
+            this.hitId = wall.id;
 
             const pt = createVector();
+
             pt.x = x1 + t * (x2 - x1);
             pt.y = y1 + t * (y2 - y1);
-            let bounceRay = this.calculateReflection(wall.normals, pt);
 
+            let bounceRay = this.calculateReflection(wall.normals, pt);
 
             return bounceRay;
         }else{
-            this.isColliding = false;
+            // this.hitId = "";
             return;
         }
+        
+        // else{
+        //     this.isColliding = false;
+        //     return;
+        // }
     }
 }
