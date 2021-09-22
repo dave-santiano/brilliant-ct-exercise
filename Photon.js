@@ -4,7 +4,7 @@ class Photon{
         this.dir = createVector(1, 1);
         this.boundaries = boundaries;
         this.reflections = 0;
-        this.maxReflections = 24;
+        this.maxReflections = 16;
         this.rays = [];
         this.rays.push(new Ray(this.pos, this.dir));
         this.eyeImg = loadImage('assets/eye.png');
@@ -64,6 +64,7 @@ class Photon{
                     this.rays[i].isColliding = true;
                 }
             }
+            
             if(this.rays.length < this.maxReflections && closest !== null ){
                 this.rays.push(closest);
             }

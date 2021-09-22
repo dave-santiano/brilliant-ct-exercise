@@ -6,7 +6,6 @@ class Ray{
         this.reflection = createVector();
         this.hitPoint = createVector();
         this.rayLength = 0;
-        this.drawArrow = false;
         this.hitId = " ";
     }
 
@@ -28,7 +27,6 @@ class Ray{
         let angleI;
         let angleR;
 
-        // stroke(0);
         //draw a line from the ray origin point to the hitpoint
         line(this.pos.x, this.pos.y, pt.x, pt.y);
 
@@ -116,32 +114,14 @@ class Ray{
         const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
 
         if(t > 0 && t < 1 && u > 0){
-            // this.isColliding = true;
-            if(wall.id === "Objective"){
-                // return;
-                this.drawArrow = true;
-            }else{
-                this.drawArrow = false;
-            }
-            
             this.hitId = wall.id;
-
             const pt = createVector();
-
             pt.x = x1 + t * (x2 - x1);
             pt.y = y1 + t * (y2 - y1);
-
             let bounceRay = this.calculateReflection(wall.normals, pt);
-
             return bounceRay;
         }else{
-            // this.hitId = "";
             return;
         }
-        
-        // else{
-        //     this.isColliding = false;
-        //     return;
-        // }
     }
 }

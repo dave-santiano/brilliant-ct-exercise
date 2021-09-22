@@ -1,11 +1,7 @@
 let startPoint;
-let xPos = 0;
-let yPos = 0;
 let photon;
-let boundary;
 let boundaries = [];
-var maxBounces = 30;
-let gui;
+let maxBounces = 16;
 let objectiveImage;
 let lineSegmentColors = ['red','green','blue'];
 let wallHeight = 400;
@@ -16,13 +12,9 @@ function setup(){
     createCanvas(1680, 1000);
     objectiveImage = loadImage("assets/objective-2.png");
     startPoint = createVector(width/2, height/2);
-    // sliderRange(0, 10, 1);
-    // gui = createGui("Controls");
-    // gui.addGlobals("maxBounces");
 
     boundaries.push(new Wall(width/2 - 75, height/2 - wallHeight, width/2 - 75, height/2, "Left"));
     boundaries.push(new Wall(width/2 + 75, height/2 - wallHeight, width/2 + 75, height/2, "Right"));
-    // boundaries.push(new Objective(width/2 - objectiveHalfWidth, height/2 - wallHeight, width/2 + objectiveHalfWidth, height/2 - wallHeight));
     boundaries.push(new Objective(width/2 - objectiveHalfWidth, height/2 - wallHeight, width/2 + objectiveHalfWidth, height/2 - wallHeight));
 
     photon = new Photon(startPoint, boundaries);
@@ -31,11 +23,9 @@ function setup(){
 
 function draw(){
     background(246);
-    // rectMode(CENTER);
-
-
     push();
     translate(0, 100);
+
     for(let i = 0; i < boundaries.length; i++){
         boundaries[i].draw();
     }
@@ -44,10 +34,29 @@ function draw(){
     photon.drawRays();
     photon.maxReflections = maxBounces;
 
+    drawReflections();
+    pop();
+    drawKey();
+    
+}
+
+function drawKey(){
+    //Draw the key 
+    fill("blue");
+    rect(30, 30, 80, 50);
+    textSize(18);
+    text("Perceived travel path", 140, 60)
+    fill("black");
+    stroke(0);
+    rect(30, 90, 80, 50);
+    text("Actual travel path", 140, 120)
+}
+
+
+function drawReflections(){
     let overallLength = 0;
     let flip = 1;
     let xDisplacement = 0;
-    // console.log(photon.rays.length);
     if(photon.rays[0].hitId === "Left"){
         flip = -1;
     }else if(photon.rays[0].hitId === "Right"){
@@ -55,8 +64,8 @@ function draw(){
     }else{
         flip = 0;
     }
-    // if(photon.rays.length > 1){
-    
+
+    //How "mirror rooms" are generated.
     for(let i = 0; i < photon.rays.length - 1; i++){
         overallLength += photon.rays[i].rayLength;
         if(i % 2 == 0){
@@ -77,6 +86,7 @@ function draw(){
         flip *= -1;
     }
 
+    //Draw total distance traveled ray
     stroke(0, 0, 255);
     push();
     translate(photon.rays[0].pos.x, photon.rays[0].pos.y);
@@ -85,6 +95,7 @@ function draw(){
     translate(photon.rays[0].dir.x * overallLength, photon.rays[0].dir.y * overallLength);
     text("Total ray length: "  + overallLength.toPrecision(5), 10, 30)
 
+    //Draw arrow head
     rotate(photon.rays[0].dir.heading());
     let arrowSize = 7;
     fill("blue");
@@ -92,28 +103,5 @@ function draw(){
     textSize(16);
     pop();
     pop();
-    pop();
 
-    fill("blue");
-    rect(30, 30, 80, 50);
-    textSize(18);
-    text("Perceived travel path", 140, 60)
-    fill("black");
-    stroke(0);
-    rect(30, 90, 80, 50);
-    text("Actual travel path", 140, 120)
-    
 }
-
-function mousePressed() {
-    // photon.pos = createVector(mouseX, mouseY);
-}
-  
-function mouseDragged() {
-    // photon.rays[0].pos = createVector(mouseX, mouseY);
-}
-
-//TO-DO: Final ray stored in photon should check for a collision
-//  with the object that in the 
-
-
